@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Grocery Price Comparison - Find Best Deals</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+</head>
+<body>
+    <div class="container">
+        <!-- Header -->
+        <header class="header">
+            <div class="header-content">
+                <div class="logo">
+                    <svg width="40" height="40" viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <rect width="40" height="40" rx="12" fill="#4F46E5"/>
+                        <path d="M12 20L18 26L28 14" stroke="white" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+                    </svg>
+                    <h1>PriceCheck</h1>
+                </div>
+                <p class="tagline">Compare grocery prices across Ontario stores</p>
+            </div>
+        </header>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <!-- Search Section -->
+            <div class="search-section">
+                <h2>Find the Best Deals</h2>
+                <p class="search-description">Search from {{ categories|length }} product categories</p>
+                
+                <div class="search-bar">
+                    <div class="search-input-wrapper">
+                        <svg class="search-icon" width="20" height="20" viewBox="0 0 20 20" fill="none">
+                            <path d="M19 19L13 13M15 8C15 11.866 11.866 15 8 15C4.13401 15 1 11.866 1 8C1 4.13401 4.13401 1 8 1C11.866 1 15 4.13401 15 8Z" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                        </svg>
+                        <input type="text" id="searchInput" placeholder="Search for products (e.g., milk, eggs, chicken)..." autocomplete="off">
+                        <button id="clearBtn" class="clear-btn" style="display: none;">
+                            <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
+                                <path d="M15 5L5 15M5 5L15 15" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                            </svg>
+                        </button>
+                    </div>
+                    <button id="searchBtn" class="search-btn">Search</button>
+                </div>
+
+                <!-- Sort Options -->
+                <div class="sort-options">
+                    <label>Sort by:</label>
+                    <div class="radio-group">
+                        <label class="radio-label">
+                            <input type="radio" name="sort" value="price" checked>
+                            <span>Cheapest Price</span>
+                        </label>
+                        <label class="radio-label">
+                            <input type="radio" name="sort" value="unit_price">
+                            <span>Best Value</span>
+                        </label>
+                        <label class="radio-label">
+                            <input type="radio" name="sort" value="quantity">
+                            <span>Largest Size</span>
+                        </label>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Categories Section -->
+            <div class="categories-section">
+                <h3>Available Categories</h3>
+                <div class="categories-grid">
+                    {% for category in categories %}
+                    <button class="category-chip" data-category="{{ category }}">{{ category|title }}</button>
+                    {% endfor %}
+                </div>
+            </div>
+
+            <!-- Results Section -->
+            <div id="resultsSection" class="results-section" style="display: none;">
+                <div class="results-header">
+                    <h3 id="resultsTitle">Search Results</h3>
+                    <span id="resultsCount" class="results-count"></span>
+                </div>
+
+                <!-- Best Deal Card -->
+                <div id="bestDealCard" class="best-deal-card clickable-card">
+                    <div class="best-deal-badge">⭐ Best Deal</div>
+                    <div class="best-deal-content">
+                        <h4 id="bestDealName"></h4>
+                        <div class="best-deal-details">
+                            <div class="price-tag" id="bestDealPrice"></div>
+                            <div class="store-badge" id="bestDealStore"></div>
+                        </div>
+                        <div class="best-deal-info">
+                            <span id="bestDealQuantity"></span>
+                            <span id="bestDealBrand"></span>
+                        </div>
+                        <div class="view-product-link">
+                            <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+                                <path d="M6 12L10 8L6 4" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                            </svg>
+                            View on Flipp
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Results Grid -->
+                <div id="resultsGrid" class="results-grid"></div>
+            </div>
+
+            <!-- Loading State -->
+            <div id="loadingState" class="loading-state" style="display: none;">
+                <div class="spinner"></div>
+                <p>Searching for best deals...</p>
+            </div>
+
+            <!-- Empty State -->
+            <div id="emptyState" class="empty-state">
+                <svg width="120" height="120" viewBox="0 0 120 120" fill="none">
+                    <circle cx="60" cy="60" r="50" fill="#F3F4F6"/>
+                    <path d="M40 55C40 52.2386 42.2386 50 45 50H75C77.7614 50 80 52.2386 80 55V75C80 77.7614 77.7614 80 75 80H45C42.2386 80 40 77.7614 40 75V55Z" fill="#E5E7EB"/>
+                    <circle cx="60" cy="40" r="8" fill="#9CA3AF"/>
+                </svg>
+                <h3>Start Searching</h3>
+                <p>Enter a product name or select a category to find the best prices</p>
+            </div>
+
+            <!-- Error State -->
+            <div id="errorState" class="error-state" style="display: none;">
+                <svg width="80" height="80" viewBox="0 0 80 80" fill="none">
+                    <circle cx="40" cy="40" r="35" fill="#FEE2E2"/>
+                    <path d="M40 25V45M40 55V57" stroke="#DC2626" stroke-width="4" stroke-linecap="round"/>
+                </svg>
+                <h3>No Results Found</h3>
+                <p id="errorMessage"></p>
+            </div>
+        </main>
+
+        <!-- Footer -->
+        <footer class="footer">
+            <p>Data updated: <span id="lastUpdate">{{ categories|length }} products available</span></p>
+            <button id="refreshBtn" class="refresh-btn">
+                <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+                    <path d="M14 8C14 11.3137 11.3137 14 8 14C4.68629 14 2 11.3137 2 8C2 4.68629 4.68629 2 8 2C9.84873 2 11.5102 2.81975 12.6365 4.10547M12.6365 4.10547V1M12.6365 4.10547H9.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+                Refresh Data
+            </button>
+        </footer>
+    </div>
+
+    <script src="{{ url_for('static', filename='js/app.js') }}"></script>
+</body>
+</html>
