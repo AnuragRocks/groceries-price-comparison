@@ -8,13 +8,13 @@ import re
 from typing import List, Dict
 from difflib import SequenceMatcher
 
-app = Flask(__name__)
+app = Flask(__name__, template_folder='../frontend/templates', static_folder='../frontend/static')
 
 
 class ProductComparator:
     """Compare product prices from the scraped data"""
     
-    def __init__(self, csv_file: str = 'product_prices.csv'):
+    def __init__(self, csv_file: str = '../database/product_prices.csv'):
         self.csv_file = csv_file
         self.products = []
         self.load_data()

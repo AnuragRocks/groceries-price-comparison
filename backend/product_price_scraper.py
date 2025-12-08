@@ -170,7 +170,7 @@ class FlippProductScraper:
             return
         
         if filename is None:
-            filename = 'product_prices.csv'
+            filename = '../database/product_prices.csv'
         
         fieldnames = [
             'search_term', 'product_name', 'price', 'quantity', 'unit',
