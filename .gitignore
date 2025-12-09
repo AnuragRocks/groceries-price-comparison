@@ -16,10 +16,8 @@ ENV/
 *.swp
 *.swo
 
-# CSV data files (optional - remove if you want to commit data)
-database/*.csv
-
 # Debug files
 debug_*.py
 reproduce_*.py
 verify_*.py
+test_*.py
