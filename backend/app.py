@@ -5,8 +5,15 @@ Flask Web Application for Product Price Comparison
 from flask import Flask, render_template, request, jsonify
 import csv
 import re
+import os
+import sys
 from typing import List, Dict
 from difflib import SequenceMatcher
+
+# Add logging
+import logging
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger(__name__)
 
 app = Flask(__name__, template_folder='../frontend/templates', static_folder='../frontend/static')
 
@@ -21,7 +28,6 @@ class ProductComparator:
     
     def load_data(self):
         """Load product data from CSV"""
-        import os
         try:
             # Try multiple possible paths
             possible_paths = [
@@ -33,17 +39,19 @@ class ProductComparator:
             
             for path in possible_paths:
                 if os.path.exists(path):
-                    print(f"✓ Found CSV at: {path}")
+                    logger.info(f"✓ Found CSV at: {path}")
                     with open(path, 'r', encoding='utf-8') as f:
                         reader = csv.DictReader(f)
                         self.products = list(reader)
-                    print(f"✓ Loaded {len(self.products)} products")
+                    logger.info(f"✓ Loaded {len(self.products)} products")
                     return
             
-            print(f"✗ CSV file not found. Tried: {possible_paths}")
+            logger.error(f"✗ CSV file not found. Tried: {possible_paths}")
+            logger.error(f"Current working directory: {os.getcwd()}")
+            logger.error(f"Files in current directory: {os.listdir('.')}")
             self.products = []
         except Exception as e:
-            print(f"✗ Error loading CSV: {e}")
+            logger.error(f"✗ Error loading CSV: {e}")
             self.products = []
     
     def get_available_categories(self) -> List[str]:
@@ -177,15 +185,17 @@ comparator = ProductComparator()
 def index():
     """Home page"""
     categories = comparator.get_available_categories()
-    print(f"Categories available: {len(categories)}")
-    print(f"Total products loaded: {len(comparator.products)}")
+    logger.info(f"Categories available: {len(categories)}")
+    logger.info(f"Total products loaded: {len(comparator.products)}")
     return render_template('index.html', categories=categories)
 
 
 @app.route('/search', methods=['POST'])
 def search():
     """Search for products"""
+    logger.info("Search endpoint called")
     data = request.get_json()
+    logger.info(f"Search request data: {data}")
     search_term = data.get('search_term', '')
     sort_by = data.get('sort_by', 'price')
     
