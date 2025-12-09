@@ -3,7 +3,7 @@ services:
     name: grocery-price-comparison
     env: python
     buildCommand: pip install -r backend/requirements.txt
-    startCommand: gunicorn --chdir backend wsgi:app --bind 0.0.0.0:$PORT --log-level info --access-logfile - --error-logfile - --capture-output --enable-stdio-inheritance
+    startCommand: cd backend && python -m gunicorn app:app --bind 0.0.0.0:$PORT --log-level info
     envVars:
       - key: PYTHON_VERSION
         value: 3.11.0
