@@ -21,11 +21,29 @@ class ProductComparator:
     
     def load_data(self):
         """Load product data from CSV"""
+        import os
         try:
-            with open(self.csv_file, 'r', encoding='utf-8') as f:
-                reader = csv.DictReader(f)
-                self.products = list(reader)
-        except FileNotFoundError:
+            # Try multiple possible paths
+            possible_paths = [
+                self.csv_file,
+                os.path.join(os.path.dirname(__file__), '..', 'database', 'product_prices.csv'),
+                'database/product_prices.csv',
+                '../database/product_prices.csv'
+            ]
+            
+            for path in possible_paths:
+                if os.path.exists(path):
+                    print(f"✓ Found CSV at: {path}")
+                    with open(path, 'r', encoding='utf-8') as f:
+                        reader = csv.DictReader(f)
+                        self.products = list(reader)
+                    print(f"✓ Loaded {len(self.products)} products")
+                    return
+            
+            print(f"✗ CSV file not found. Tried: {possible_paths}")
+            self.products = []
+        except Exception as e:
+            print(f"✗ Error loading CSV: {e}")
             self.products = []
     
     def get_available_categories(self) -> List[str]:
@@ -159,6 +177,8 @@ comparator = ProductComparator()
 def index():
     """Home page"""
     categories = comparator.get_available_categories()
+    print(f"Categories available: {len(categories)}")
+    print(f"Total products loaded: {len(comparator.products)}")
     return render_template('index.html', categories=categories)
 
 
