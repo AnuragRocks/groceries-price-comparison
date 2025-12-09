@@ -196,11 +196,6 @@ def main():
     
     scraper = FlippProductScraper()
     
-    # Optional: Allow user to set postal code
-    user_postal = input("Enter Ontario postal code (or press Enter for Toronto M5H2N2): ").strip()
-    if user_postal:
-        scraper.set_postal_code(user_postal)
-    
     print(f"\nStarting product search for Ontario location (postal code: {scraper.postal_code})")
     print("-" * 80 + "\n")
     

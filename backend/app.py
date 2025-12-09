@@ -83,20 +83,31 @@ class ProductComparator:
         """Calculate similarity between two strings"""
         return SequenceMatcher(None, str1.lower(), str2.lower()).ratio()
     
-    def search_products(self, search_term: str, min_similarity: float = 0.3) -> List[Dict]:
+    def search_products(self, search_term: str, min_similarity: float = 0.6) -> List[Dict]:
         """Search for products matching the search term"""
         results = []
         search_lower = search_term.lower()
+        search_words = set(search_lower.split())
         
         for product in self.products:
             name = product.get('product_name', '').lower()
             description = product.get('description', '').lower()
             search_field = product.get('search_term', '').lower()
             
-            if (search_lower in name or 
-                search_lower in description or 
-                search_lower in search_field or
-                self.similarity_score(search_lower, name) > min_similarity):
+            # Check if search term is in the main fields (exact substring match)
+            exact_match = (search_lower in name or 
+                          search_lower in description or 
+                          search_lower in search_field)
+            
+            # Check if individual words from search are in the product fields
+            name_words = set(name.split())
+            word_match = len(search_words.intersection(name_words)) > 0 or \
+                        search_words.issubset(set(search_field.split()))
+            
+            # High similarity score for fuzzy matching
+            similarity = self.similarity_score(search_lower, name)
+            
+            if exact_match or (word_match and similarity > min_similarity):
                 
                 price = self.normalize_price(product.get('price', ''))
                 quantity = self.normalize_quantity(
